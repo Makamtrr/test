@@ -1,0 +1,135 @@
+---
+title: "TP_1"
+output: html_document
+date: "2025-04-28"
+---
+
+## 1. Importation et visualisation
+
+```{r}
+library(readr)
+data <- read_delim("Z:/BUT 2/modele_lineaire/TP_note/Toyota.txt", 
+    delim = ";", escape_double = FALSE, trim_ws = TRUE)
+View(data)
+```
+
+## 2. Analyse univariée
+
+```{r}
+summary(data)
+sapply(data, sd)
+```
+
+## 3. Corrélations
+
+```{r}
+library(corrplot)
+M <- cor(data)
+corrplot(M)
+```
+
+## 4. Modèle complet
+
+### Ajustement du modèle
+
+```{r}
+modele_complet <- lm(Price ~ Age + KM + HP + MetColor + Automatic + Doors + Weight, data = data)
+```
+
+### Vérification des hypothèses
+
+```{r}
+residu <- residuals(modele_complet)
+plot(modele_complet)
+```
+
+#### Homoscedasticité
+
+##### Residuals vs Fitted
+
+Le graphe Résidus vs Valeurs ajustées ne montre pas de structure particulière, ce qui suggère une variance constante des erreurs.
+
+##### Scale-Location
+
+Le graphique Scale-Location indique une variance relativement constante des résidus, validant l'hypothèse d'homoscédasticité
+
+#### Normalité des résidus
+
+##### Q-Q plot
+
+Le Q-Q plot montre que les résidus sont globalement alignés avec la droite théorique, ce qui confirme la normalité des erreurs.
+
+```{r}
+shapiro.test(residu)
+```
+
+W = 0.9975 (très proche de 1) ➔ Cela indique que les résidus suivent presque une distribution normale. p-value = 0.8118 (largement supérieure à 0.05) ➔ Cela signifie qu'on ne rejette pas l'hypothèse de normalité.
+
+#### indépendance
+
+##### Résidus vs Leverage
+
+Le graphique Résidus vs Leverage ne montre pas de points fortement influents, indiquant une bonne robustesse du modèle aux observations extrêmes.
+
+### Estimer et commenter les coefficients + Tester la significativité individuelle des param`etres (seuil 5 %)
+
+```{r}
+summary(modele_complet)
+```
+
+(Intercept) : 22 570 € ➔ C'est le prix estimé d'une voiture lorsque toutes les autres variables sont à zéro .
+
+Age : Le coefficient est -48.9. Cela signifie qu'à chaque mois supplémentaire d'âge, le prix de la voiture baisse en moyenne de 48,90 €. La p-value est très faible (\< 2e-16), ce qui confirme que l'effet est hautement significatif.
+
+KM : Le coefficient est -0.05167. Cela signifie qu'à chaque kilomètre parcouru en plus, le prix baisse de 5 centimes en moyenne. Cet effet est aussi hautement significatif (p-value \< 2e-16).
+
+HP : Le coefficient est +98.47. Chaque cheval-vapeur supplémentaire augmente en moyenne le prix de 98,47 €. L'effet est hautement significatif (p-value \< 2e-16).
+
+MetColor : Le coefficient est +398.9. Avoir une couleur métallisée augmente en moyenne le prix de environ 399 €. L'effet est statistiquement significatif (p-value = 0.000198).
+
+Automatic : Le coefficient est +1 017 €. Une transmission automatique augmente le prix d'environ 1 017 €. Cet effet est également très significatif (p-value \< 2e-16).
+
+Doors : Le coefficient est -23.74. Le nombre de portes a un effet très faible et surtout non significatif (p-value = 0.727838). Il n'y a pas de preuve d'un impact du nombre de portes sur le prix de revente.
+
+Weight : Le coefficient est -2.108. Chaque kilogramme supplémentaire est associé à une baisse de 2,11 € du prix. L'effet est très significatif (p-value \< 2e-16).
+
+## 5. Qualité de l’ajustement
+
+### Calculer R2
+```{r}
+summary(modele_complet)
+```
+
+Multiple R-squared = R2 = 0.9736
+Ce résultat signifie que le modèle explique environ 97.36% de la variance du prix, indiquant une trés bonne qualité d’ajustement.
+
+### Tester la signification globale du modèle
+
+p-value: < 2.2e-16
+Le test F global donne une p-value extrêmement faible. Cette valeur est bien inférieure au seuil de 5%, ce qui indique que l'ensemble du modèle est hautement significatif.
+Donc au moins une des variables explicatives a un effet réel sur le prix, et le modèle de régression multiple est globalement pertinent pour expliquer la variation du prix des Toyota Corolla d'occasion.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
